@@ -33,7 +33,7 @@ if (isset($_GET['action']) && isset($_GET['user_id'])) {
                 $action_message = "User '{$user_name_for_message}' (ID: {$user_id_to_modify}) has been approved.";
                 $action_message_type = 'success';
                 break;
-            case 'reject': // Sets is_approved to 0
+            case 'reject':
                 $all_users[$user_id_to_modify]['is_approved'] = 0;
                 $action_message = "User '{$user_name_for_message}' (ID: {$user_id_to_modify}) has been rejected (unapproved).";
                 $action_message_type = 'success';
@@ -48,8 +48,6 @@ if (isset($_GET['action']) && isset($_GET['user_id'])) {
                 $action_message = "Invalid action specified.";
                 $action_message_type = 'error';
         }
-        // Redirect to clear GET parameters from URL and show message
-        // Store message in session to display after redirect
         $_SESSION['action_message'] = $action_message;
         $_SESSION['action_message_type'] = $action_message_type;
         header("Location: manage_users.php");
@@ -62,7 +60,6 @@ if (isset($_GET['action']) && isset($_GET['user_id'])) {
     }
 }
 
-// Retrieve and clear action message from session
 if (isset($_SESSION['action_message'])) {
     $action_message = $_SESSION['action_message'];
     $action_message_type = $_SESSION['action_message_type'];
@@ -70,8 +67,18 @@ if (isset($_SESSION['action_message'])) {
     unset($_SESSION['action_message_type']);
 }
 
+// Logic for resetting simulated data
+if (isset($_GET['action']) && $_GET['action'] === 'reset_simulated_data') {
+    unset($_SESSION['simulated_users_data']); // Clear current modified data
+    $_SESSION['simulated_users_data'] = get_all_users_simulation(null); // Re-initialize with original data
+    $_SESSION['action_message'] = "Simulated user data has been reset to its initial state.";
+    $_SESSION['action_message_type'] = 'info';
+    header("Location: manage_users.php");
+    exit();
+}
 
-include_once 'admin_header.php'; // Include admin header
+
+include_once 'admin_header.php';
 ?>
 
 <h2><?php echo htmlspecialchars($page_title); ?></h2>
@@ -83,6 +90,7 @@ include_once 'admin_header.php'; // Include admin header
 <?php endif; ?>
 
 <?php if (!empty($all_users)): ?>
+    <div style="overflow-x:auto;"> <!-- Added for better responsiveness on small screens -->
     <table>
         <thead>
             <tr>
@@ -91,6 +99,9 @@ include_once 'admin_header.php'; // Include admin header
                 <th>Email</th>
                 <th>Gender</th>
                 <th>DOB</th>
+                <th>Birth Star</th>
+                <th>Time of Birth</th>
+                <th>Birth Place</th>
                 <th>Approved?</th>
                 <th>Premium?</th>
                 <th>Registered At</th>
@@ -105,6 +116,9 @@ include_once 'admin_header.php'; // Include admin header
                     <td><?php echo sanitize_output($user['email']); ?></td>
                     <td><?php echo sanitize_output($user['gender']); ?></td>
                     <td><?php echo sanitize_output($user['dob']); ?></td>
+                    <td><?php echo sanitize_output($user['birth_star'] ?? 'N/A'); ?></td>
+                    <td><?php echo sanitize_output($user['time_of_birth'] ?? 'N/A'); ?></td>
+                    <td><?php echo sanitize_output($user['birth_place'] ?? 'N/A'); ?></td>
                     <td><?php echo $user['is_approved'] ? '<span style="color:green;">Yes</span>' : '<span style="color:red;">No</span>'; ?></td>
                     <td><?php echo $user['is_premium'] ? '<span style="color:blue;">Yes</span>' : '<span style="color:orange;">No</span>'; ?></td>
                     <td><?php echo sanitize_output( (new DateTime($user['created_at']))->format('Y-m-d H:i') ); ?></td>
@@ -118,31 +132,20 @@ include_once 'admin_header.php'; // Include admin header
                         <a href="manage_users.php?action=toggle_premium&user_id=<?php echo $user['id']; ?>" class="premium" onclick="return confirm('Are you sure you want to toggle premium status for this user?');">
                             <?php echo $user['is_premium'] ? 'Remove Premium' : 'Make Premium'; ?>
                         </a>
-                        <!-- Add link to view/edit profile details later -->
-                        <!-- | <a href="view_user_details.php?user_id=<?php echo $user['id']; ?>">Details</a> -->
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 <?php else: ?>
     <p>No users found in the system.</p>
 <?php endif; ?>
 
 <p style="margin-top:20px;">
-    <a href="manage_users.php?action=reset_simulated_data">Reset Simulated User Data</a> (Note: This link is for demo purposes to reset data to initial state. It needs to be implemented if desired).
+    <a href="manage_users.php?action=reset_simulated_data" style="text-decoration:none; padding:8px 12px; background-color:#17a2b8; color:white; border-radius:4px;">Reset Simulated User Data</a>
 </p>
 
 <?php
-// Logic for resetting simulated data (optional, for testing)
-if (isset($_GET['action']) && $_GET['action'] === 'reset_simulated_data') {
-    unset($_SESSION['simulated_users_data']);
-    header("Location: manage_users.php?message=sim_data_reset");
-    exit();
-}
-if(isset($_GET['message']) && $_GET['message'] === 'sim_data_reset' && empty($action_message)){ // Avoid double message
-    echo "<div class='message info'>Simulated user data has been reset to its initial state.</div>";
-}
-
-include_once 'admin_footer.php'; // Include admin footer
+include_once 'admin_footer.php';
 ?>

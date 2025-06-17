@@ -43,11 +43,11 @@ function sanitize_output($data) {
  */
 function get_all_users_simulation($db_conn_placeholder = null) {
     return [
-        1 => ['id'=>1, 'name'=>'Test User', 'email'=>'test@example.com', 'gender'=>'Male', 'dob'=>'1990-01-01', 'is_approved'=>1, 'is_premium'=>0, 'created_at'=>'2023-01-15 10:00:00'],
-        2 => ['id'=>2, 'name'=>'Jane Doe', 'email'=>'jane@example.com', 'gender'=>'Female', 'dob'=>'1992-05-15', 'is_approved'=>1, 'is_premium'=>1, 'created_at'=>'2023-02-20 11:30:00'],
-        3 => ['id'=>3, 'name'=>'Pending User', 'email'=>'pending@example.com', 'gender'=>'Other', 'dob'=>'1995-10-20', 'is_approved'=>0, 'is_premium'=>0, 'created_at'=>'2023-03-10 14:15:00'],
-        4 => ['id'=>4, 'name'=>'Another User', 'email'=>'another@example.com', 'gender'=>'Male', 'dob'=>'1988-07-07', 'is_approved'=>1, 'is_premium'=>0, 'created_at'=>'2023-04-01 09:05:00'],
-        5 => ['id'=>5, 'name'=>'Unapproved Premium', 'email'=>'unapproved.premium@example.com', 'gender'=>'Female', 'dob'=>'1993-11-25', 'is_approved'=>0, 'is_premium'=>1, 'created_at'=>'2023-05-12 16:45:00'], // Edge case: premium but not approved
+        1 => ['id'=>1, 'name'=>'Test User', 'email'=>'test@example.com', 'gender'=>'Male', 'dob'=>'1990-01-01', 'is_approved'=>1, 'is_premium'=>0, 'created_at'=>'2023-01-15 10:00:00', 'birth_star' => 'Rohini', 'time_of_birth' => '10:30', 'birth_place' => 'New Delhi, India'],
+        2 => ['id'=>2, 'name'=>'Jane Doe', 'email'=>'jane@example.com', 'gender'=>'Female', 'dob'=>'1992-05-15', 'is_approved'=>1, 'is_premium'=>1, 'created_at'=>'2023-02-20 11:30:00', 'birth_star' => 'Ashwini', 'time_of_birth' => '14:45', 'birth_place' => 'Mumbai, India'],
+        3 => ['id'=>3, 'name'=>'Pending User', 'email'=>'pending@example.com', 'gender'=>'Other', 'dob'=>'1995-10-20', 'is_approved'=>0, 'is_premium'=>0, 'created_at'=>'2023-03-10 14:15:00', 'birth_star' => 'Bharani', 'time_of_birth' => '08:00', 'birth_place' => 'Kolkata, India'],
+        4 => ['id'=>4, 'name'=>'Another User', 'email'=>'another@example.com', 'gender'=>'Male', 'dob'=>'1988-07-07', 'is_approved'=>1, 'is_premium'=>0, 'created_at'=>'2023-04-01 09:05:00', 'birth_star' => 'Krittika', 'time_of_birth' => '18:15', 'birth_place' => 'Chennai, India'],
+        5 => ['id'=>5, 'name'=>'Unapproved Premium', 'email'=>'unapproved.premium@example.com', 'gender'=>'Female', 'dob'=>'1993-11-25', 'is_approved'=>0, 'is_premium'=>1, 'created_at'=>'2023-05-12 16:45:00', 'birth_star' => 'Mrigashira', 'time_of_birth' => '22:00', 'birth_place' => 'Bengaluru, India'],
     ];
 }
 
