@@ -79,6 +79,7 @@ $page_title = "Dashboard"; // Will be used by header.php
         <p>This is your dashboard. From here you can manage your profile, search for partners, and more.</p>
         <ul>
             <li><a href="profile.php">Manage Your Profile</a></li>
+            <li><a href="manage_preferences.php">Manage Partner Preferences</a></li>
             <li><a href="search.php">Search for Profiles</a></li>
             <li><a href="logout.php">Logout</a></li>
         </ul>
