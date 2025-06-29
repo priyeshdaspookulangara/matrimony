@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = $_SESSION['user_id'];
-$page_title = "Manage Profile & View Preferences"; // Updated page title
+$page_title = "Manage Profile & View Preferences";
 
 $errors = [];
 $success_message = '';
@@ -24,7 +24,8 @@ function get_user_profile_simulation($db_conn_placeholder, $current_user_id) {
             'height' => '5ft 10in', 'religion' => 'Agnostic', 'caste' => 'N/A',
             'education' => 'PhD in Computer Science', 'occupation' => 'Lead Developer',
             'income_range' => '20-30LPA', 'family_type' => 'Nuclear',
-            'birth_star' => 'Rohini', 'time_of_birth' => '10:30', 'birth_place' => 'New Delhi, India'
+            'birth_star' => 'Rohini', 'time_of_birth' => '10:30', 'birth_place' => 'New Delhi, India',
+            'hobbies' => 'Reading, Traveling, Photography' // New field
         ];
     }
     return null;
@@ -32,7 +33,7 @@ function get_user_profile_simulation($db_conn_placeholder, $current_user_id) {
 $profile_data = get_user_profile_simulation(isset($db) ? $db : null, $user_id);
 
 // --- Fetch User's Own Preferences (Simulated from Session) ---
-if (!isset($_SESSION['user_preferences_data'])) { // Initialize if manage_preferences.php hasn't been visited yet
+if (!isset($_SESSION['user_preferences_data'])) {
     $_SESSION['user_preferences_data'] = [];
 }
 $user_own_preferences = $_SESSION['user_preferences_data'][$user_id] ?? [];
@@ -43,23 +44,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['form_type']) && $_POST
     // Retrieve profile fields from $_POST
     $description = $_POST['description'] ?? '';
     $height = $_POST['height'] ?? '';
-    // ... (all other profile fields as before) ...
+    $religion = $_POST['religion'] ?? '';
+    $caste = $_POST['caste'] ?? '';
+    $education = $_POST['education'] ?? '';
+    $occupation = $_POST['occupation'] ?? '';
+    $income_range = $_POST['income_range'] ?? '';
+    $family_type = $_POST['family_type'] ?? '';
     $birth_star = $_POST['birth_star'] ?? '';
     $time_of_birth = $_POST['time_of_birth'] ?? '';
     $birth_place = $_POST['birth_place'] ?? '';
-    $family_type = $_POST['family_type'] ?? ''; // ensure this is part of profile form
-    $income_range = $_POST['income_range'] ?? ''; // ensure this is part of profile form
-    $occupation = $_POST['occupation'] ?? '';
-    $education = $_POST['education'] ?? '';
-    $caste = $_POST['caste'] ?? '';
-    $religion = $_POST['religion'] ?? '';
-
+    $hobbies = $_POST['hobbies'] ?? ''; // New field
 
     $profile_photo_info = $_FILES['profile_photo'] ?? null;
     $new_photo_path = $profile_data['photo_path'] ?? null;
 
-    // --- Validation (as before) ---
+    // --- Validation ---
     if (strlen($description) > 1000) $errors[] = "Description should not exceed 1000 characters.";
+    if (strlen($hobbies) > 255) $errors[] = "Hobbies field should not exceed 255 characters."; // New validation
     // ... (all other validations for profile fields) ...
     if (strlen($birth_star) > 50) $errors[] = "Birth Star input seems too long.";
     if (!empty($time_of_birth) && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $time_of_birth)) {
@@ -86,39 +87,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['form_type']) && $_POST
 
     if (empty($errors)) {
         $db_available = isset($db) && $db instanceof mysqli;
-        // Conceptual Sanitization (as before for all fields including new ones)
+        // Conceptual Sanitization
         $escaped_description = $db_available ? mysqli_real_escape_string($db, $description) : sanitize_output($description);
-        // ... (escape all other profile fields) ...
+        $escaped_height = $db_available ? mysqli_real_escape_string($db, $height) : sanitize_output($height);
+        $escaped_religion = $db_available ? mysqli_real_escape_string($db, $religion) : sanitize_output($religion);
+        $escaped_caste = $db_available ? mysqli_real_escape_string($db, $caste) : sanitize_output($caste);
+        $escaped_education = $db_available ? mysqli_real_escape_string($db, $education) : sanitize_output($education);
+        $escaped_occupation = $db_available ? mysqli_real_escape_string($db, $occupation) : sanitize_output($occupation);
+        $escaped_income_range = $db_available ? mysqli_real_escape_string($db, $income_range) : sanitize_output($income_range);
+        $escaped_family_type = $db_available ? mysqli_real_escape_string($db, $family_type) : sanitize_output($family_type);
         $escaped_birth_star = $db_available ? mysqli_real_escape_string($db, $birth_star) : sanitize_output($birth_star);
         $escaped_time_of_birth = $db_available ? mysqli_real_escape_string($db, $time_of_birth) : sanitize_output($time_of_birth);
         $escaped_birth_place = $db_available ? mysqli_real_escape_string($db, $birth_place) : sanitize_output($birth_place);
-        $escaped_family_type = $db_available ? mysqli_real_escape_string($db, $family_type) : sanitize_output($family_type);
-        $escaped_income_range = $db_available ? mysqli_real_escape_string($db, $income_range) : sanitize_output($income_range);
-        $escaped_occupation = $db_available ? mysqli_real_escape_string($db, $occupation) : sanitize_output($occupation);
-        $escaped_education = $db_available ? mysqli_real_escape_string($db, $education) : sanitize_output($education);
-        $escaped_caste = $db_available ? mysqli_real_escape_string($db, $caste) : sanitize_output($caste);
-        $escaped_religion = $db_available ? mysqli_real_escape_string($db, $religion) : sanitize_output($religion);
-        $escaped_height = $db_available ? mysqli_real_escape_string($db, $height) : sanitize_output($height);
+        $escaped_hobbies = $db_available ? mysqli_real_escape_string($db, $hobbies) : sanitize_output($hobbies); // New field
         $escaped_photo_path = $db_available && $new_photo_path ? mysqli_real_escape_string($db, $new_photo_path) : sanitize_output($new_photo_path ?? '');
 
-        // Conceptual DB Interaction (as before, ensuring new fields are part of it)
-        $sql_query = ""; // Construct your INSERT or UPDATE query string
-        if ($profile_data !== null) {
-             $sql_query = "UPDATE profiles SET description = '$escaped_description', height = '$escaped_height', religion = '$escaped_religion', caste = '$escaped_caste', education = '$escaped_education', occupation = '$escaped_occupation', income_range = '$escaped_income_range', family_type = '$escaped_family_type', birth_star = '$escaped_birth_star', time_of_birth = '$escaped_time_of_birth', birth_place = '$escaped_birth_place', photo_path = '$escaped_photo_path', last_updated = NOW() WHERE user_id = $user_id;";
+        // Conceptual DB Interaction
+        $sql_query = "";
+        if ($profile_data !== null) { // UPDATE
+            $sql_query = "UPDATE profiles SET description = '$escaped_description', height = '$escaped_height', religion = '$escaped_religion', caste = '$escaped_caste', education = '$escaped_education', occupation = '$escaped_occupation', income_range = '$escaped_income_range', family_type = '$escaped_family_type', birth_star = '$escaped_birth_star', time_of_birth = '$escaped_time_of_birth', birth_place = '$escaped_birth_place', hobbies = '$escaped_hobbies', photo_path = '$escaped_photo_path', last_updated = NOW() WHERE user_id = $user_id;"; // Added hobbies
             $success_message .= "Profile updated successfully (simulation).";
-        } else {
-            $sql_query = "INSERT INTO profiles (user_id, description, height, religion, caste, education, occupation, income_range, family_type, birth_star, time_of_birth, birth_place, photo_path, created_at, last_updated) VALUES ($user_id, '$escaped_description', '$escaped_height', '$escaped_religion', '$escaped_caste', '$escaped_education', '$escaped_occupation', '$escaped_income_range', '$escaped_family_type', '$escaped_birth_star', '$escaped_time_of_birth', '$escaped_birth_place', '$escaped_photo_path', NOW(), NOW());";
+        } else { // INSERT
+            $sql_query = "INSERT INTO profiles (user_id, description, height, religion, caste, education, occupation, income_range, family_type, birth_star, time_of_birth, birth_place, hobbies, photo_path, created_at, last_updated) VALUES ($user_id, '$escaped_description', '$escaped_height', '$escaped_religion', '$escaped_caste', '$escaped_education', '$escaped_occupation', '$escaped_income_range', '$escaped_family_type', '$escaped_birth_star', '$escaped_time_of_birth', '$escaped_birth_place', '$escaped_hobbies', '$escaped_photo_path', NOW(), NOW());"; // Added hobbies
             $success_message .= "Profile created successfully (simulation).";
         }
-        // $success_message .= " Query: " . sanitize_output($sql_query); // Optional: show query for debug
+        // $success_message .= " Query: " . sanitize_output($sql_query);
 
-        // Update $profile_data for immediate reflection
-        $profile_data = [
+        $profile_data = [ // Update $profile_data for immediate reflection
             'user_id' => $user_id, 'description' => $description, 'height' => $height,
             'religion' => $religion, 'caste' => $caste, 'education' => $education,
             'occupation' => $occupation, 'income_range' => $income_range,
             'family_type' => $family_type, 'birth_star' => $birth_star,
             'time_of_birth' => $time_of_birth, 'birth_place' => $birth_place,
+            'hobbies' => $hobbies, // New field
             'photo_path' => $new_photo_path
         ];
     }
@@ -132,7 +133,7 @@ include 'includes/header.php';
 
 <h2><?php echo sanitize_output($page_title); ?></h2>
 
-<?php if (!empty($success_message) && strpos($success_message, "Profile") !== false ): // Show only profile update messages ?>
+<?php if (!empty($success_message) && strpos($success_message, "Profile") !== false ): ?>
     <div class="success" style="color:green; border:1px solid green; padding:10px; margin-bottom:15px;">
         <p><?php echo $success_message; ?></p>
     </div>
@@ -158,6 +159,11 @@ include 'includes/header.php';
         <label for="description">Brief Description:</label><br>
         <textarea name="description" id="description" rows="4" cols="50"><?php echo sanitize_output($profile_data['description'] ?? ''); ?></textarea>
     </div>
+    <div>
+        <label for="hobbies">Hobbies (comma-separated, max 255 chars):</label>
+        <textarea name="hobbies" id="hobbies" rows="3" maxlength="255"><?php echo sanitize_output($profile_data['hobbies'] ?? ''); ?></textarea>
+    </div>
+
     <fieldset style="margin-top:10px; margin-bottom:10px; padding:10px; border:1px solid #eee;">
         <legend>Personal & Family</legend>
         Height: <input type="text" name="height" value="<?php echo sanitize_output($profile_data['height'] ?? ''); ?>"> |
@@ -165,7 +171,7 @@ include 'includes/header.php';
         Caste: <input type="text" name="caste" value="<?php echo sanitize_output($profile_data['caste'] ?? ''); ?>"> |
         Family Type: <select name="family_type">
             <?php foreach ($family_type_options as $val => $lab): ?>
-            <option value="<?php echo $val; ?>" <?php echo (isset($profile_data['family_type']) && $profile_data['family_type'] == $val) ? 'selected' : ''; ?>><?php echo $lab; ?></option>
+            <option value="<?php echo sanitize_output($val); ?>" <?php echo (isset($profile_data['family_type']) && $profile_data['family_type'] == $val) ? 'selected' : ''; ?>><?php echo sanitize_output($lab); ?></option>
             <?php endforeach; ?>
         </select>
     </fieldset>
@@ -181,7 +187,7 @@ include 'includes/header.php';
         Occupation: <input type="text" name="occupation" value="<?php echo sanitize_output($profile_data['occupation'] ?? ''); ?>"> |
         Income: <select name="income_range">
              <?php foreach ($income_options as $val => $lab): ?>
-            <option value="<?php echo $val; ?>" <?php echo (isset($profile_data['income_range']) && $profile_data['income_range'] == $val) ? 'selected' : ''; ?>><?php echo $lab; ?></option>
+            <option value="<?php echo sanitize_output($val); ?>" <?php echo (isset($profile_data['income_range']) && $profile_data['income_range'] == $val) ? 'selected' : ''; ?>><?php echo sanitize_output($lab); ?></option>
             <?php endforeach; ?>
         </select>
     </fieldset>

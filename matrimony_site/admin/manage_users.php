@@ -69,8 +69,8 @@ if (isset($_SESSION['action_message'])) {
 
 // Logic for resetting simulated data
 if (isset($_GET['action']) && $_GET['action'] === 'reset_simulated_data') {
-    unset($_SESSION['simulated_users_data']); // Clear current modified data
-    $_SESSION['simulated_users_data'] = get_all_users_simulation(null); // Re-initialize with original data
+    unset($_SESSION['simulated_users_data']);
+    $_SESSION['simulated_users_data'] = get_all_users_simulation(null);
     $_SESSION['action_message'] = "Simulated user data has been reset to its initial state.";
     $_SESSION['action_message_type'] = 'info';
     header("Location: manage_users.php");
@@ -90,7 +90,7 @@ include_once 'admin_header.php';
 <?php endif; ?>
 
 <?php if (!empty($all_users)): ?>
-    <div style="overflow-x:auto;"> <!-- Added for better responsiveness on small screens -->
+    <div style="overflow-x:auto;">
     <table>
         <thead>
             <tr>
@@ -102,6 +102,7 @@ include_once 'admin_header.php';
                 <th>Birth Star</th>
                 <th>Time of Birth</th>
                 <th>Birth Place</th>
+                <th>Hobbies</th>
                 <th>Approved?</th>
                 <th>Premium?</th>
                 <th>Registered At</th>
@@ -119,6 +120,7 @@ include_once 'admin_header.php';
                     <td><?php echo sanitize_output($user['birth_star'] ?? 'N/A'); ?></td>
                     <td><?php echo sanitize_output($user['time_of_birth'] ?? 'N/A'); ?></td>
                     <td><?php echo sanitize_output($user['birth_place'] ?? 'N/A'); ?></td>
+                    <td><?php echo sanitize_output($user['hobbies'] ?? 'N/A'); ?></td>
                     <td><?php echo $user['is_approved'] ? '<span style="color:green;">Yes</span>' : '<span style="color:red;">No</span>'; ?></td>
                     <td><?php echo $user['is_premium'] ? '<span style="color:blue;">Yes</span>' : '<span style="color:orange;">No</span>'; ?></td>
                     <td><?php echo sanitize_output( (new DateTime($user['created_at']))->format('Y-m-d H:i') ); ?></td>

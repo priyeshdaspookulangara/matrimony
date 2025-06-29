@@ -61,11 +61,23 @@ function get_full_user_profile_simulation($db_conn_placeholder, $target_user_id)
         2 => ['id' => 2, 'name' => 'Jane Doe (Approved)', 'email' => 'jane@example.com', 'gender' => 'Female', 'dob' => '1992-05-15', 'is_approved' => 1, 'registration_date' => '2023-02-20'],
         3 => ['id' => 3, 'name' => 'Pending User (Unapproved)', 'email' => 'pending@example.com', 'gender' => 'Other', 'dob' => '1995-10-20', 'is_approved' => 0, 'registration_date' => '2023-03-01'],
     ];
-    // Profile data now includes new horoscope fields
+    // Profile data now includes new horoscope and hobbies fields
     $profiles_data = [
-        1 => ['user_id' => 1, 'photo_path' => 'uploads/user_1_photo.jpg', 'description' => 'This is the sample bio for Test User. I enjoy photography and travel.', 'height' => '5ft 10in', 'religion' => 'Agnostic', 'caste' => 'N/A', 'education' => 'PhD in Computer Science', 'occupation' => 'Lead Developer', 'income_range' => '20-30LPA', 'family_type' => 'Nuclear', 'last_updated' => '2023-05-10', 'birth_star' => 'Rohini', 'time_of_birth' => '10:30', 'birth_place' => 'New Delhi, India'],
-        2 => ['user_id' => 2, 'photo_path' => 'uploads/user_2_photo.jpg', 'description' => 'Jane Doe\'s bio: Enjoys reading, hiking, and volunteering.', 'height' => '5ft 6in', 'religion' => 'Spiritual', 'caste' => 'Does not believe in caste', 'education' => 'Masters in Arts', 'occupation' => 'Graphic Designer', 'income_range' => '10-15LPA', 'family_type' => 'Joint', 'last_updated' => '2023-06-01', 'birth_star' => 'Ashwini', 'time_of_birth' => '14:45', 'birth_place' => 'Mumbai, India'],
-        3 => ['user_id' => 3, 'description' => 'Awaiting approval.', 'height' => 'N/A'] // No horoscope details for unapproved or minimal profiles
+        1 => ['user_id' => 1, 'photo_path' => 'uploads/user_1_photo.jpg',
+              'description' => 'This is the sample bio for Test User. I enjoy photography and travel.',
+              'height' => '5ft 10in', 'religion' => 'Agnostic', 'caste' => 'N/A',
+              'education' => 'PhD in Computer Science', 'occupation' => 'Lead Developer',
+              'income_range' => '20-30LPA', 'family_type' => 'Nuclear', 'last_updated' => '2023-05-10',
+              'birth_star' => 'Rohini', 'time_of_birth' => '10:30', 'birth_place' => 'New Delhi, India',
+              'hobbies' => 'Reading, Traveling, Photography'],
+        2 => ['user_id' => 2, 'photo_path' => 'uploads/user_2_photo.jpg',
+              'description' => 'Jane Doe\'s bio: Enjoys reading, hiking, and volunteering.',
+              'height' => '5ft 6in', 'religion' => 'Spiritual', 'caste' => 'Does not believe in caste',
+              'education' => 'Masters in Arts', 'occupation' => 'Graphic Designer',
+              'income_range' => '10-15LPA', 'family_type' => 'Joint', 'last_updated' => '2023-06-01',
+              'birth_star' => 'Ashwini', 'time_of_birth' => '14:45', 'birth_place' => 'Mumbai, India',
+              'hobbies' => 'Hiking, Painting, Yoga'],
+        3 => ['user_id' => 3, 'description' => 'Awaiting approval.', 'height' => 'N/A'] // No extra details for unapproved
     ];
     if (!isset($users_data[$target_user_id])) return null;
     $user_info = $users_data[$target_user_id];
@@ -91,7 +103,6 @@ if ($view_profile_data === null) {
     $display_content .= "<h2>Profile of " . sanitize_output($view_profile_data['name']) . "</h2>";
     if (!empty($view_profile_data['photo_path'])) {
         $display_content .= "<p><img src='" . sanitize_output($view_profile_data['photo_path']) . "' alt='Profile photo of " . sanitize_output($view_profile_data['name']) . "' style='max-width: 200px; max-height: 200px; border: 1px solid #ccc;'></p>";
-        $display_content .= "<p><small><i>Conceptual photo path: " . sanitize_output($view_profile_data['photo_path']) . "</i></small></p>";
     } else {
         $display_content .= "<p><img src='images/default_avatar.png' alt='Default profile photo' style='max-width: 150px; max-height: 150px; border: 1px solid #ccc;'></p>";
     }
@@ -105,26 +116,28 @@ if ($view_profile_data === null) {
     $display_content .= "<h3>About</h3>";
     $display_content .= "<p>" . nl2br(sanitize_output($view_profile_data['description'] ?? 'Not provided.')) . "</p>";
 
+    // Display Hobbies if available
+    if (!empty($view_profile_data['hobbies'])) {
+        $display_content .= "<p><strong>Hobbies:</strong> " . nl2br(sanitize_output($view_profile_data['hobbies'])) . "</p>";
+    }
+
+
     $display_content .= "<h3>Lifestyle & Background</h3>";
     $display_content .= "<p><strong>Height:</strong> " . sanitize_output($view_profile_data['height'] ?? 'N/A') . "</p>";
     $display_content .= "<p><strong>Religion:</strong> " . sanitize_output($view_profile_data['religion'] ?? 'N/A') . "</p>";
     $display_content .= "<p><strong>Caste:</strong> " . sanitize_output($view_profile_data['caste'] ?? 'N/A') . "</p>";
     $display_content .= "<p><strong>Family Type:</strong> " . sanitize_output($view_profile_data['family_type'] ?? 'N/A') . "</p>";
 
-    // New Horoscope Details Section
     $display_content .= "<h3>Birth & Horoscope Details</h3>";
     if (!empty($view_profile_data['birth_star'])) {
         $display_content .= "<p><strong>Birth Star (Nakshatra):</strong> " . sanitize_output($view_profile_data['birth_star']) . "</p>";
     } else { $display_content .= "<p><strong>Birth Star (Nakshatra):</strong> N/A</p>"; }
-
     if (!empty($view_profile_data['time_of_birth'])) {
         $display_content .= "<p><strong>Time of Birth:</strong> " . sanitize_output($view_profile_data['time_of_birth']) . "</p>";
     } else { $display_content .= "<p><strong>Time of Birth:</strong> N/A</p>"; }
-
     if (!empty($view_profile_data['birth_place'])) {
         $display_content .= "<p><strong>Birth Place:</strong> " . sanitize_output($view_profile_data['birth_place']) . "</p>";
     } else { $display_content .= "<p><strong>Birth Place:</strong> N/A</p>"; }
-
 
     $display_content .= "<h3>Education & Career</h3>";
     $display_content .= "<p><strong>Education:</strong> " . sanitize_output($view_profile_data['education'] ?? 'N/A') . "</p>";
@@ -135,7 +148,6 @@ if ($view_profile_data === null) {
         $display_content .= "<p><small>Profile last updated: " . sanitize_output( (new DateTime($view_profile_data['last_updated']))->format('M jS, Y') ) . "</small></p>";
     }
 
-    // "Express Interest" Button Logic (remains the same)
     $interest_check_key = $current_logged_in_user_id . "_" . $profile_user_id;
     $has_expressed_interest = isset($_SESSION['expressed_interests'][$interest_check_key]);
     $display_content .= "<div style='margin-top: 20px;'>";
